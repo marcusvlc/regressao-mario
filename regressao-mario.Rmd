@@ -1,0 +1,67 @@
+---
+title: "Análise de dados de um leilão de jogos utilizando regressão linear"
+author: "Marcus Vinicius L. Costa"
+date: "11 de junho de 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(openintro)
+library(tidyverse)
+library(ggbeeswarm)
+library(modelr)
+library(broom)
+
+dados = read_tsv('marioKart.txt')
+```
+
+### Regressao entre as variaveis numero de lances e valor da venda nos dados de um leilao de jogos
+
+## Regressao sem filtrar os dados
+
+```{r}
+dados %>% ggplot(aes(x = totalPr, y = nBids)) +  geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+```
+
+## Regressao filtrando os dados
+
+```{r}
+
+dados_filtrados = dados %>% filter(totalPr != 326.51, totalPr != 118.50)
+
+dados_filtrados %>% ggplot(aes(x = totalPr, y = nBids)) +  geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+mod <- lm(totalPr ~ nBids, 
+          data = dados_filtrados)
+
+tidy(mod)
+glance(mod)
+
+cor(dados_filtrados$totalPr, dados_filtrados$nBids)
+
+```
+Podemos perceber que, ao limpar os dados, a representaçao da regressao linear melhora muito, já que existiam dois dados fora do padrao (o dataframe era para ser composto por apenas vendas de jogos, e esses outliers representavam vendas de um console e um conjunto de jogos), no entanto, essa regressao ainda não nos mostra muito, já que a correlação entre as variáveis é bastante baixa.
+
+Podemos deduzir: totalPr = 49.1 - 0.12 * nBids
+R² = 0,0006
+
+## Regressão linear para relacionar o aumento em relação aos lances
+
+```{r}
+dados_com_aumento = dados_filtrados %>% mutate(aumento = totalPr - startPr)
+
+dados_com_aumento %>% ggplot(aes(x=aumento, y = nBids)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+mod_aumento <- lm(aumento ~ nBids, 
+          data = dados_com_aumento)
+
+tidy(mod_aumento)
+glance(mod_aumento)
+
+
+```
+Podemos deduzir: aumento = 17.6 - 1.57 * nBids
+R² = 0.37
+
