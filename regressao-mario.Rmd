@@ -65,3 +65,27 @@ glance(mod_aumento)
 Podemos deduzir: aumento = 17.6 - 1.57 * nBids
 R² = 0.37
 
+```{r}
+tidy(mod_aumento, conf.int = TRUE, conf.level = .95) %>% select(-p.value)
+
+```
+
+## Regressão linear para relacionar o preço total de uma venda no leilão com a variavel stockPhoto
+
+
+```{r}
+
+
+dados_filtrados %>% ggplot(aes(x=totalPr, y = stockPhoto)) + geom_point() + geom_smooth(method = "lm", se = FALSE)
+
+mod_stock <- lm(aumento ~ nBids, 
+          data = dados_filtrados)
+
+tidy(mod_stock)
+glance(mod_stock)
+
+
+```
+
+
+
